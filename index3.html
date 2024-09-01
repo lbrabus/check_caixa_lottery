@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Text Extractor and Lotto Checker</title>
+    <style>
+
+body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f9fc;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+            text-align: center;
+        }
+
+        .container {
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 90%;
+            width: 350px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 30px;
+            color: #3498db;
+        }
+
+        .btn {
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 18px;
+            width: 80%;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #2980b9;
+        }
+
+        .btn:active {
+            background-color: #1c5980;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        .output {
+            margin-top: 20px;
+            font-size: 18px;
+            text-align: left;
+        }
+        .winner {
+            color: green;
+            font-weight: bold;
+        }
+        .loading-icon {
+            display: none;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+    <h1>Image Text Extractor and Lotto Checker</h1>
+    <input type="file" class="btn" id="imageInput" accept="image/*">
+    <div id="imageContainer">
+        <img id="uploadedImage" src="" alt="Uploaded Image">
+    </div>
+    <div id="textOutput" class="output"></div>
+    <div id="loadingIcon" class="loading-icon">
+        <img src="https://i.gifer.com/ZZ5H.gif" alt="Loading..." width="50">
+        <p>Processing, please wait...</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
+    <script>
+        document.getElementById('imageInput').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                const imgElement = document.getElementById('uploadedImage');
+                imgElement.src = e.target.result;
+                // Show loading icon
+                document.getElementById('loadingIcon').style.display = 'block';
+                // Scroll to the bottom of the page
+                window.scrollTo(0, document.body.scrollHeight);
+
+                Tesseract.recognize(
+                    e.target.result,
+                    'eng',
+                    {
+                        logger: (m) => console.log(m), // Optional: Monitor the progress
+                    }
+                ).then(({ data: { text } }) => {
+                    processLottoResults(text); // Call the main function with extracted text
+                }).catch(err => {
+                    document.getElementById('textOutput').innerText = "Error extracting text: " + err;
+                }).finally(() => {
+                    // Hide loading icon after processing
+                    document.getElementById('loadingIcon').style.display = 'none';
+                });
+            };
+
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function parseExtractedText(text) {
+            const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+
+            const data = {};
+            let currentAposta = '';
+
+            lines.forEach((line, index) => {
+                if (line.startsWith("Nomero do concurso")) {
+                    data.numero_concurso = lines[index + 1].split(' ')[0].filter(num => !isNaN(num));
+                    data.date = lines[index + 1];
+                }
+
+                if (line.startsWith("Data do concurso")) {
+                    data.data_concurso = lines[index + 1].split(' ')[0].filter(num => !isNaN(num));
+                    data.date = lines[index + 1];
+                }
+
+                if (line.startsWith("Aposta A")) {
+                    currentAposta = 'aposta_a';
+                    data.aposta_a = lines[index + 1]
+                                                    .split('-')
+                                                    .map(num => parseInt(num, 10))
+                                                    .filter(num => !isNaN(num));
+                }
+
+                if (line.startsWith("Aposta B")) {
+                    currentAposta = 'aposta_b';
+                    data.aposta_b = lines[index + 1]
+                                                    .split('-')
+                                                    .map(num => parseInt(num, 10))
+                                                    .filter(num => !isNaN(num));
+                }
+
+                if (line.startsWith("Aposta C")) {
+                    currentAposta = 'aposta_c';
+                    data.aposta_c = lines[index + 1]
+                                                    .split('-')
+                                                    .map(num => parseInt(num, 10))
+                                                    .filter(num => !isNaN(num));
+                }
+            });
+
+            return data;
+        }
+
+        async function fetchWinningNumbers(concursoNumber) {
+            const apiUrl = `https://servicebus2.caixa.gov.br/portaldeloterias/api/megasena/${concursoNumber}`;
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                return data.dezenasSorteadasOrdemSorteio.map(num => parseInt(num, 10));
+            } catch (error) {
+                console.error("Error fetching winning numbers:", error);
+                return [];
+            }
+        }
+
+        function compareApostasWithResults(apostas, winningNumbers) {
+            const results = {};
+
+            for (let [key, aposta] of Object.entries(apostas)) {
+                if (Array.isArray(aposta)) {
+                    const matches = aposta.filter(num => winningNumbers.includes(num));
+                    results[key] = {
+                        aposta: aposta,
+                        matches: matches.length,
+                        matchingNumbers: matches,
+                        isWinner: matches.length >= 4 // Mark as a winner if 4 or more matches
+                    };
+                }
+            }
+
+            return results;
+        }
+
+        async function processLottoResults(extractedText) {
+            const parsedData = parseExtractedText(extractedText);
+            const winningNumbers = await fetchWinningNumbers(parsedData.numero_concurso);
+            const comparisonResults = compareApostasWithResults(parsedData, winningNumbers);
+
+            let outputHtml = `
+                <strong>Numero do Concurso:</strong> ${parsedData.numero_concurso}<br>
+                <strong>Data:</strong> ${parsedData.data_concurso}<br>
+                <strong>Numero Sorteado:</strong> ${winningNumbers.join(', ')}<br>
+                <strong>Resultados:</strong><br>
+            `;
+
+            for (let [key, result] of Object.entries(comparisonResults)) {
+                outputHtml += `
+                    <div>
+                        <strong>${key.toUpperCase()}:</strong> ${result.aposta.join(', ')}<br>
+                        <strong>Acertos:</strong> ${result.matches} (${result.matchingNumbers.join(', ')})<br>
+                `;
+                if (result.isWinner) {
+                    outputHtml += `<span class="winner">Parabens! Voce ganhou!!</span><br>`;
+                }
+                outputHtml += `</div><br>`;
+            }
+
+            document.getElementById('textOutput').innerHTML = outputHtml;
+            // Scroll to the bottom of the page
+            window.scrollTo(0, document.body.scrollHeight);
+        }
+    </script>
+</body>
+</html>
