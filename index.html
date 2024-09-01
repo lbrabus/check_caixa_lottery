@@ -132,11 +132,6 @@ body {
                     data.date = lines[index + 1];
                 }
 
-                if (line.startsWith("Data do concurso")) {
-                    data.data_concurso = lines[index + 1].split(' ')[0].filter(num => !isNaN(num));
-                    data.date = lines[index + 1];
-                }
-
                 if (line.startsWith("Aposta A")) {
                     currentAposta = 'aposta_a';
                     data.aposta_a = lines[index + 1]
