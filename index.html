@@ -132,6 +132,11 @@ body {
                     data.date = lines[index + 1];
                 }
 
+                if (line.startsWith("Data do concurso")) {
+                    data.data_concurso = lines[index + 1].split(' ')[0].filter(num => !isNaN(num));
+                    data.date = lines[index + 1];
+                }
+
                 if (line.startsWith("Aposta A")) {
                     currentAposta = 'aposta_a';
                     data.aposta_a = lines[index + 1]
@@ -197,6 +202,7 @@ body {
 
             let outputHtml = `
                 <strong>Numero do Concurso:</strong> ${parsedData.numero_concurso}<br>
+                <strong>Data:</strong> ${parsedData.data_concurso}<br>
                 <strong>Numero Sorteado:</strong> ${winningNumbers.join(', ')}<br>
                 <strong>Resultados:</strong><br>
             `;
