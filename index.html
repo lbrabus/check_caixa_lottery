@@ -196,7 +196,7 @@ body {
             const comparisonResults = compareApostasWithResults(parsedData, winningNumbers);
 
             let outputHtml = `
-                <strong>Raw text:</strong> ${JSON.to_string(parsedData)}<br>
+                <strong>Raw text:</strong> ${JSON.stringify(parsedData)}<br>
                 <strong>Concurso Number:</strong> ${parsedData.numero_concurso}<br>
                 <strong>Date:</strong> ${parsedData.date}<br>
                 <strong>Winning Numbers:</strong> ${winningNumbers.join(', ')}<br>
