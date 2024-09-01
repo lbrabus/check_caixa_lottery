@@ -135,7 +135,7 @@ body {
                 if (line.startsWith("Aposta A")) {
                     currentAposta = 'aposta_a';
                     data.aposta_a = lines[index + 1]
-                                                    .split('-')
+                                                    .split('- - -')
                                                     .map(num => parseInt(num, 10))
                                                     .filter(num => !isNaN(num));
                 }
@@ -143,7 +143,7 @@ body {
                 if (line.startsWith("Aposta B")) {
                     currentAposta = 'aposta_b';
                     data.aposta_b = lines[index + 1]
-                                                    .split('-')
+                                                    .split('- - -')
                                                     .map(num => parseInt(num, 10))
                                                     .filter(num => !isNaN(num));
                 }
@@ -151,7 +151,7 @@ body {
                 if (line.startsWith("Aposta C")) {
                     currentAposta = 'aposta_c';
                     data.aposta_c = lines[index + 1]
-                                                    .split('-')
+                                                    .split('- - -')
                                                     .map(num => parseInt(num, 10))
                                                     .filter(num => !isNaN(num));
                 }
