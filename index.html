@@ -128,13 +128,8 @@ body {
 
             lines.forEach((line, index) => {
                 if (line.startsWith("Nomero do concurso")) {
-                    data.numero_concurso = lines[index + 1].split(' ')[0].filter(num => !isNaN(num));
-                    data.date = lines[index + 1];
-                }
-
-                if (line.startsWith("Data do concurso")) {
-                    data.data_concurso = lines[index + 1].split(' ')[0].filter(num => !isNaN(num));
-                    data.date = lines[index + 1];
+                    data.numero_concurso = lines[index + 1].split(' ')[0];
+                    data.date = lines[index + 1].split('-')[1];
                 }
 
                 if (line.startsWith("Aposta A")) {
@@ -201,20 +196,20 @@ body {
             const comparisonResults = compareApostasWithResults(parsedData, winningNumbers);
 
             let outputHtml = `
-                <strong>Numero do Concurso:</strong> ${parsedData.numero_concurso}<br>
-                <strong>Data:</strong> ${parsedData.data_concurso}<br>
-                <strong>Numero Sorteado:</strong> ${winningNumbers.join(', ')}<br>
-                <strong>Resultados:</strong><br>
+                <strong>Concurso Number:</strong> ${parsedData.numero_concurso}<br>
+                <strong>Date:</strong> ${parsedData.date}<br>
+                <strong>Winning Numbers:</strong> ${winningNumbers.join(', ')}<br>
+                <strong>Results:</strong><br>
             `;
 
             for (let [key, result] of Object.entries(comparisonResults)) {
                 outputHtml += `
                     <div>
                         <strong>${key.toUpperCase()}:</strong> ${result.aposta.join(', ')}<br>
-                        <strong>Acertos:</strong> ${result.matches} (${result.matchingNumbers.join(', ')})<br>
+                        <strong>Matches:</strong> ${result.matches} (${result.matchingNumbers.join(', ')})<br>
                 `;
                 if (result.isWinner) {
-                    outputHtml += `<span class="winner">Parabens! Voce ganhou!!</span><br>`;
+                    outputHtml += `<span class="winner">You Won!!</span><br>`;
                 }
                 outputHtml += `</div><br>`;
             }
