@@ -129,7 +129,7 @@ body {
             lines.forEach((line, index) => {
                 if (line.startsWith("Nomero do concurso")) {
                     data.numero_concurso = lines[index + 1].split(' ')[0];
-                    if (data.numero_concurso == "undefined") {
+                    if (data.numero_concurso == undefined) {
                         if (line.startsWith("NUmero do concurso")) {
                             data.numero_concurso = lines[index + 1].split(' ')[0];
                         }
