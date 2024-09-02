@@ -34,6 +34,11 @@ body {
             color: #3498db;
         }
 
+        h3 {
+            font-size: 12px;
+            margin-bottom: 30px;
+        }
+
         .btn {
             background-color: #3498db;
             color: #fff;
@@ -79,7 +84,7 @@ body {
     <div id="imageContainer">
         <img id="uploadedImage" src="" alt="Uploaded Image">
     </div>
-    <div id="versionInfo" class="output">v0.0.1 beta</div>
+    <div id="versionInfo"> <h3> v0.0.1 beta</h3> </div>
     <div id="textOutput" class="output"></div>
     <div id="loadingIcon" class="loading-icon">
         <img src="https://i.gifer.com/ZZ5H.gif" alt="Loading..." width="50">
@@ -130,7 +135,7 @@ body {
             lines.forEach((line, index) => {
                 if (line.startsWith("Nomero do concurso")) {
                     data.numero_concurso = lines[index + 1].split(' ')[0];
-                    if (data.numero_concurso == undefined) {
+                    if (!data.numero_concurso) {
                         if (line.startsWith("NUmero do concurso")) {
                             data.numero_concurso = lines[index + 1].split(' ')[0];
                         }
