@@ -144,7 +144,7 @@ body {
                 if (line.startsWith("Aposta A")) {
                     currentAposta = 'aposta_a';
                     data.aposta_a = lines[index + 1]
-                                                    .split('-')
+                                                    .split('---')
                                                     .map(num => parseInt(num, 10))
                                                     .filter(num => !isNaN(num));
                 }
