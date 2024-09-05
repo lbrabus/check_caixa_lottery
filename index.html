@@ -143,10 +143,12 @@ body {
 
                 if (line.startsWith("Aposta A")) {
                     currentAposta = 'aposta_a';
-                    data.aposta_a = lines[index + 1]
-                                                    .split('---')
-                                                    .map(num => parseInt(num, 10))
-                                                    .filter(num => !isNaN(num));
+
+                    // Extract the part of the string after "Aposta A "
+                    const apostaString = line.split("Aposta A ")[1];
+
+                    // Split by '---', map to integers, and filter out NaN values
+                    data.aposta_a = apostaString
                 }
 
                 if (line.startsWith("Aposta B")) {
