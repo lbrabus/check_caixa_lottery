@@ -126,53 +126,46 @@ body {
             }
         });
 
-        function parseExtractedText(text) {
-            const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
 
-            const data = {};
-            let currentAposta = '';
-
-            lines.forEach((line, index) => {
-                if (line.startsWith("Nomero do concurso")) {
-                    data.numero_concurso = lines[index + 1].split(' ')[0];
-                }else{
-                    if (line.startsWith("NUmero do concurso")) {
-                        data.numero_concurso = lines[index + 1].split(' ')[0];
-                    }
-                }
-
-                if (line.startsWith("Aposta A")) {
-                    currentAposta = 'aposta_a';
-
-                    // Extract the part of the string after "Aposta A "
-                    const apostaString = line.split("Aposta A ")[1];
-
-                    // Split by '---', map to integers, and filter out NaN values
-                    data.aposta_a = apostaString
-                        .split('---')
-                        .map(num => parseInt(num, 10))
-                        .filter(num => !isNaN(num));
-                }
-
-                if (line.startsWith("Aposta B")) {
-                    currentAposta = 'aposta_b';
-                    data.aposta_b = lines[index + 1]
-                                                    .split('-')
-                                                    .map(num => parseInt(num, 10)) 
-                                                    .filter(num => !isNaN(num));
-                }
-
-                if (line.startsWith("Aposta C")) {
-                    currentAposta = 'aposta_c';
-                    data.aposta_c = lines[index + 1]
-                                                    .split('-')
-                                                    .map(num => parseInt(num, 10)) 
-                                                    .filter(num => !isNaN(num));
-                }
-            });
-
-            return data;
+      // Helper function to extract data by regex
+      function extractByRegex(pattern, text) {
+            const match = text.match(pattern);
+            return match ? match[1].trim() : null;
         }
+
+       // Function to clean and convert the extracted 'Aposta' into an array of numbers (limiting to 6 numbers)
+       function cleanAposta(aposta) {
+            if (!aposta) return null;
+            // Replace any non-digit character sequences with a space, remove newlines, split into numbers, and limit to 6 numbers
+            return aposta.replace(/[^\d]+/g, " ").replace(/\n/g, "").trim().split(/\s+/).map(Number).slice(0, 6);
+        }
+
+        // Function to extract and structure the data
+        function parseExtractedText(rawText1) {
+            console.log("rawText1:");
+            console.log(rawText1);
+            // First replace all newlines with spaces to treat the text as one block
+            const rawText = rawText1.replace(/\n/g, " ").trim();
+            console.log("rawText:");
+            console.log(rawText);
+            const numeroConcurso = extractByRegex(/Nomero do concurso  Data do concurso\s*(\d+)/, rawText);
+            const dataConcurso = extractByRegex(/Nomero do concurso  Data do concurso\s*([\d\/]+)/, rawText);
+            const apostaA = extractByRegex(/Aposta A\s*([^\n]+)/, rawText);
+            const apostaB = extractByRegex(/Aposta B\s*([^\n]+)/, rawText);
+            const apostaC = extractByRegex(/Aposta C\s*([^\n]+)/, rawText);
+
+            // Structure the data
+            const structuredData = {
+                numero_concurso: numeroConcurso,
+                data: dataConcurso,
+                aposta_a: cleanAposta(apostaA),
+                aposta_b: apostaB ? cleanAposta(apostaB) : null,
+                aposta_c: apostaC ? cleanAposta(apostaC) : null
+            };
+
+            return structuredData;
+        }
+ 
 
         async function fetchWinningNumbers(concursoNumber) {
             const apiUrl = `https://servicebus2.caixa.gov.br/portaldeloterias/api/megasena/${concursoNumber}`;
