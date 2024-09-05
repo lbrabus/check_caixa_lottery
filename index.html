@@ -149,13 +149,16 @@ body {
 
                     // Split by '---', map to integers, and filter out NaN values
                     data.aposta_a = apostaString
+                        .split('---')
+                        .map(num => parseInt(num.trim(), 10)) // Trim spaces before converting to number
+                        .filter(num => !isNaN(num));
                 }
 
                 if (line.startsWith("Aposta B")) {
                     currentAposta = 'aposta_b';
                     data.aposta_b = lines[index + 1]
                                                     .split('-')
-                                                    .map(num => parseInt(num, 10))
+                                                    .map(num => parseInt(num.trim(), 10)) // Trim spaces before converting to number
                                                     .filter(num => !isNaN(num));
                 }
 
@@ -163,7 +166,7 @@ body {
                     currentAposta = 'aposta_c';
                     data.aposta_c = lines[index + 1]
                                                     .split('-')
-                                                    .map(num => parseInt(num, 10))
+                                                    .map(num => parseInt(num.trim(), 10)) // Trim spaces before converting to number
                                                     .filter(num => !isNaN(num));
                 }
             });
