@@ -148,8 +148,8 @@ body {
             const rawText = rawText1.replace(/\n/g, " ").trim();
             console.log("rawText:");
             console.log(rawText);
-            const numeroConcurso = extractByRegex(/Nomero do concurso  Data do concurso\s*(\d+)/, rawText);
-            const dataConcurso = extractByRegex(/Nomero do concurso  Data do concurso\s*([\d\/]+)/, rawText);
+            const numeroConcurso = extractByRegex(/Data do concurso\s*(\d{4})/, rawText);
+            const dataConcurso = extractByRegex(/Data do concurso\d{4}\s*([\d\/]+)/, rawText);
             const apostaA = extractByRegex(/Aposta A\s*([^\n]+)/, rawText);
             const apostaB = extractByRegex(/Aposta B\s*([^\n]+)/, rawText);
             const apostaC = extractByRegex(/Aposta C\s*([^\n]+)/, rawText);
